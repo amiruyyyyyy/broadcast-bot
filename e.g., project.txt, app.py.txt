@@ -1,0 +1,31 @@
+Discord broadcast bot
+
+const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js');
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+
+// قناة الإعلانات (يجب استبدالها بمعرف القناة الخاص بك)
+const BROADCAST_CHANNEL_ID = '123456789012345678';
+
+client.once('ready', () => {
+    console.log(`Bot ${client.user.tag} is ready!`);
+});
+
+client.on('messageCreate', async message => {
+    if (message.content.startsWith('!broadcast')) {
+        // التحقق من صلاحيات المشرف
+        if (message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            const broadcastMessage = message.content.slice('!broadcast'.length).trim();
+            const channel = client.channels.cache.get(BROADCAST_CHANNEL_ID);
+            if (channel) {
+                channel.send(`@everyone\n**إعلان:**\n${broadcastMessage}`);
+                message.reply('تم إرسال الإعلان بنجاح!');
+            } else {
+                message.reply('لم يتم العثور على قناة الإعلانات.');
+            }
+        } else {
+            message.reply('ليس لديك الصلاحية لاستخدام هذا الأمر.');
+        }
+    }
+});
+
+client.login('YOUR_BOT_TOKEN');
